@@ -1848,15 +1848,6 @@ apollo-server-types@^3.2.0:
     apollo-server-caching "^3.1.0"
     apollo-server-env "^4.0.3"
 
-apollo-server@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.npmjs.org/apollo-server/-/apollo-server-3.3.0.tgz#4c0c9d20185d89cbe83aec2c797564b5b5968ecb"
-  integrity sha512-vJE+lIOQMgno3IaJvwo66S53m0CU4fq7qAgnOCubitIGNKEHiUL6yXKL0rMGfOPZqeed2S2QWQrOsCGQDIudMw==
-  dependencies:
-    apollo-server-core "^3.3.0"
-    apollo-server-express "^3.3.0"
-    express "^4.17.1"
-
 array-flatten@1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/array-flatten/-/array-flatten-1.1.1.tgz#9a5f699051b1e7073328f2a008968b64ea2955d2"
