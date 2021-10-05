@@ -1,5 +1,8 @@
 import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+import {
+  ApolloServerPluginDrainHttpServer,
+  ApolloServerPluginLandingPageGraphQLPlayground
+} from "apollo-server-core";
 import http from "http";
 
 import typeDefs from "../../graphql/typeDefs.js";
@@ -13,7 +16,10 @@ export default async function startApolloServer(app) {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      ApolloServerPluginLandingPageGraphQLPlayground()
+    ],
     context: ({ req }) => req
   });
 
