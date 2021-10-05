@@ -2,8 +2,8 @@ import express from "express";
 import session from "express-session";
 import MongoDBStore from "connect-mongodb-session";
 
-import router, { adminBro } from "./services/AdminBro/startAdminBro.js";
-import startApolloServer from "./services/ApolloServer/startApolloServer.js";
+import router, { adminBro } from "./services/adminBro/startAdminBro.js";
+import startApolloServer from "./services/apolloServer/startApolloServer.js";
 
 const app = express();
 
