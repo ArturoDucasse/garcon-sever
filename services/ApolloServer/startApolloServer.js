@@ -2,7 +2,12 @@ import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import http from "http";
 
-export default async function startApolloServer(typeDefs, resolvers, app) {
+import typeDefs from "../../graphql/typeDefs.js";
+import resolvers from "../../graphql/resolvers.js";
+
+const port = 3000;
+
+export default async function startApolloServer(app) {
   const httpServer = http.createServer(app);
 
   const server = new ApolloServer({

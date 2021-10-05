@@ -1,9 +1,8 @@
 import AdminBroExpress from "@admin-bro/express";
-
-import database from "../MongoDB/connection.js";
-
 import AdminBro from "admin-bro";
 import AdminBroMongoose from "@admin-bro/mongoose";
+
+import database from "../MongoDB/connection.js";
 
 //models
 import Menu from "../MongoDB/models/menu.js";
