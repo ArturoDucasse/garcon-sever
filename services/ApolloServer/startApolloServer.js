@@ -20,7 +20,8 @@ export default async function startApolloServer(app) {
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginLandingPageGraphQLPlayground()
     ],
-    context: ({ req }) => req
+    context: ({ req }) => req,
+    introspection: true
   });
 
   await server.start();
