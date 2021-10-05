@@ -5,7 +5,7 @@ import http from "http";
 import typeDefs from "../../graphql/typeDefs.js";
 import resolvers from "../../graphql/resolvers.js";
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 export default async function startApolloServer(app) {
   const httpServer = http.createServer(app);
