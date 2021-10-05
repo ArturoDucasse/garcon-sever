@@ -2,13 +2,13 @@ import AdminBroExpress from "@admin-bro/express";
 import AdminBro from "admin-bro";
 import AdminBroMongoose from "@admin-bro/mongoose";
 
-import database from "../MongoDB/connection.js";
+import database from "../mongoDB/connection.js";
 
 //models
-import Menu from "../MongoDB/models/menu.js";
-import MenuItem from "../MongoDB/models/menuItem.js";
-import Order from "../MongoDB/models/order.js";
-import Restaurant from "../MongoDB/models/restaurant.js";
+import Menu from "../mongoDB/models/menu.js";
+import MenuItem from "../mongoDB/models/menuItem.js";
+import Order from "../mongoDB/models/order.js";
+import Restaurant from "../mongoDB/models/restaurant.js";
 
 AdminBro.registerAdapter(AdminBroMongoose);
 

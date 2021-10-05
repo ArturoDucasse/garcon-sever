@@ -1,4 +1,4 @@
-import Restaurant from "../services/MongoDB/models/restaurant.js";
+import Restaurant from "../services/mongoDB/models/restaurant.js";
 
 const resolvers = {
   Query: {
