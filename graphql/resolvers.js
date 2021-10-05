@@ -1,9 +1,9 @@
-import Restaurant from "../services/mongoDB/models/restaurant.js";
+import Restaurant from "../services/MongoDB/models/restaurant.js";
 
 const resolvers = {
   Query: {
     async getRestaurant(parent, { id }, context, info) {
-      // context.session.user = ...context.query
+      context.session.user = context.query;
       const restaurant = await Restaurant.findById(id).populate({
         path: "menus",
         populate: { path: "menuItems" }
@@ -13,8 +13,7 @@ const resolvers = {
   },
   Mutation: {
     createOrder(parent, { ordersArray }, context, info) {
-      console.log(context.session, "session");
-      context.session.user.orders = ordersArray;
+      // context.session.user.orders = ordersArray;
       return "Success";
     }
   }
