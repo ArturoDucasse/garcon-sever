@@ -1,8 +1,14 @@
-import mongoose from "mongoose";
+import { Schema, model, Model, Types } from "mongoose";
 
-const { Schema } = mongoose;
+interface IOrder {
+  orderItems: any;
+  totalAmount: number;
+  date: Date;
+  restaurantId: number;
+  tableId: number;
+}
 
-const orderSchema = new Schema({
+const orderSchema = new Schema<IOrder>({
   orderItems: {
     type: [Schema.Types.ObjectId],
     ref: "MenuItem",
@@ -26,5 +32,5 @@ const orderSchema = new Schema({
   }
 });
 
-const Order = mongoose.model("Order", orderSchema);
+const Order: Model<IOrder> = model<IOrder>("Order", orderSchema);
 export default Order;

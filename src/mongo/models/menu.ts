@@ -1,13 +1,16 @@
-import mongoose from "mongoose";
+import { Schema, Types, Model, model } from "mongoose";
 
-const { Schema } = mongoose;
+export interface IMenu {
+  name: string;
+  menuItems: any;
+  restaurantId: Types.ObjectId;
+}
 
-const menuSchema = new Schema({
+const menuSchema = new Schema<IMenu>({
   name: {
     type: String,
     required: true
   },
-
   menuItems: {
     type: [Schema.Types.ObjectId],
     ref: "MenuItem",
@@ -20,5 +23,6 @@ const menuSchema = new Schema({
   }
 });
 
-const Menu = mongoose.model("Menu", menuSchema);
+const Menu: Model<IMenu> = model<IMenu>("Menu", menuSchema);
+
 export default Menu;

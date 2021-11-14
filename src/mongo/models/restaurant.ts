@@ -1,6 +1,10 @@
-import mongoose from "mongoose";
+import { model, Model, Schema } from "mongoose";
 
-const { Schema } = mongoose;
+interface IRestaurant {
+  name: string;
+  description: string;
+  menus: [Schema.Types.ObjectId];
+}
 
 const restaurantSchema = new Schema({
   name: {
@@ -18,5 +22,9 @@ const restaurantSchema = new Schema({
   }
 });
 
-const Restaurant = mongoose.model("Restaurant", restaurantSchema);
+const Restaurant: Model<IRestaurant> = model<IRestaurant>(
+  "Restaurant",
+  restaurantSchema
+);
+
 export default Restaurant;

@@ -1,8 +1,14 @@
-import mongoose from "mongoose";
+import { Schema, Types, Model, model } from "mongoose";
 
-const { Schema } = mongoose;
+interface IMenuItem {
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  menuId: Types.ObjectId;
+}
 
-const menuItemSchema = new Schema({
+const menuItemSchema = new Schema<IMenuItem>({
   name: {
     type: String,
     required: true
@@ -26,5 +32,5 @@ const menuItemSchema = new Schema({
   }
 });
 
-const MenuItem = mongoose.model("MenuItem", menuItemSchema);
+const MenuItem: Model<IMenuItem> = model<IMenuItem>("MenuItem", menuItemSchema);
 export default MenuItem;

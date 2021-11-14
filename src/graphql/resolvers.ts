@@ -1,8 +1,13 @@
-import Restaurant from "../services/MongoDB/models/restaurant.js";
+import Restaurant from "../mongo/models/restaurant";
 
 const resolvers = {
   Query: {
-    async getRestaurant(parent, { id }, context, info) {
+    async getRestaurant(
+      _parent: any,
+      { id }: any,
+      context: { session: { user: any }; query: any },
+      _info: any
+    ) {
       context.session.user = context.query;
       const restaurant = await Restaurant.findById(id).populate({
         path: "menus",
@@ -12,7 +17,7 @@ const resolvers = {
     }
   },
   Mutation: {
-    createOrder(parent, { ordersArray }, context, info) {
+    createOrder(parent: any, { ordersArray }: any, context: any, info: any) {
       // context.session.user.orders = ordersArray;
       return "Success";
     }
