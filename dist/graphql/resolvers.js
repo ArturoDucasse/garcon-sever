@@ -24,6 +24,14 @@ const resolvers = {
                 });
                 return restaurant;
             });
+        },
+        test(_parent, _args, context) {
+            // console.log(context.session, "context");
+            context.session.test = "testing";
+            return context.session.test + " " + "success";
+        },
+        test2(p, a, context) {
+            return context.session.test;
         }
     },
     Mutation: {

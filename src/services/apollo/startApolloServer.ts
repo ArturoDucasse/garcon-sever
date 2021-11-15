@@ -8,6 +8,7 @@ export default async function startApolloServer(httpServer: any) {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    context: ({ req }) => req,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
   });
   return server;

@@ -5,14 +5,15 @@
   "license": "MIT",
   "scripts": {
     "start": "node server.js",
-    "start:dev": "tsc && cd dist & nodemon server.js"
+    "start:dev": "tsc & cd dist & nodemon server.js"
   },
   "dependencies": {
     "@admin-bro/express": "^3.1.0",
     "@admin-bro/mongoose": "^1.1.0",
+    "@socket.io/mongo-adapter": "^0.1.0",
     "admin-bro": "^4.0.1",
     "apollo-server-express": "^3.3.0",
-    "connect-mongodb-session": "^3.1.0",
+    "connect-mongo": "^4.6.0",
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
     "express-graphql": "^0.12.0",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/connect-mongodb-session": "^2.4.2",
     "@types/express-session": "^1.17.4",
+    "@types/mongodb": "^4.0.7",
     "nodemon": "^2.0.12"
   },
   "engines": {

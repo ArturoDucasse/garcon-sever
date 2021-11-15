@@ -11,10 +11,6 @@ const orderSchema = new mongoose_1.Schema({
         type: Number,
         required: true
     },
-    date: {
-        type: Date,
-        required: true
-    },
     restaurantId: {
         type: Number,
         required: true
@@ -23,6 +19,6 @@ const orderSchema = new mongoose_1.Schema({
         type: Number,
         required: true
     }
-});
+}, { timestamps: true });
 const Order = (0, mongoose_1.model)("Order", orderSchema);
 exports.default = Order;

@@ -14,6 +14,14 @@ const resolvers = {
         populate: { path: "menuItems" }
       });
       return restaurant;
+    },
+    test(_parent: any, _args: any, context: any) {
+      // console.log(context.session, "context");
+      context.session.test = "testing";
+      return context.session.test + " " + "success";
+    },
+    test2(p: any, a: any, context: { session: { test: any } }) {
+      return context.session.test;
     }
   },
   Mutation: {

@@ -1,6 +1,6 @@
 import express from "express";
 import session from "express-session";
-import MongoDBStore from "connect-mongodb-session";
+import MongoStore from "connect-mongo";
 import http from "http";
 
 import apolloServer from "./services/apollo/startApolloServer";
@@ -9,22 +9,18 @@ import admin from "./services/adminBro/startAdminBro";
 const app = express();
 const httpServer = http.createServer(app);
 
-const connectMongo = MongoDBStore(session);
-
-var store = new connectMongo({
-  uri: "mongodb+srv://r2d2:3muCWbiTQe5gavkV@garcon-cluster0.0bjta.mongodb.net/garcon?retryWrites=true&w=majority",
-  collection: "sessions"
-});
-
 app.use(
   session({
-    secret: "This is a secret",
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
-    },
-    store: store,
+    secret: "foo",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl:
+        "mongodb+srv://r2d2:3muCWbiTQe5gavkV@garcon-cluster0.0bjta.mongodb.net/garcon?retryWrites=true&w=majority",
+      dbName: "garcon",
+      collectionName: "sessions",
+      stringify: false
+    })
   })
 );
 
@@ -37,7 +33,7 @@ const startServer = async () => {
   await server.start();
   server.applyMiddleware({ app });
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: 4000 }, resolve)
+    httpServer.listen({ port: 3000 }, resolve)
   );
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 };

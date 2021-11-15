@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\Dynex\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add -D @types/express-session
+  C:\Program Files\nodejs\node.exe C:\Users\Dynex\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add connect-mongo
 
 PATH: 
   C:\Users\Dynex\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\Dynex\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Python39\Scripts;C:\Python39;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\Program Files\PostgreSQL\13\bin;C:\Users\Dynex\AppData\Local\Android\Sdk\platform-tools;C:\Users\Dynex\AppData\Local\Android\Sdk\emulator;C:\Users\Dynex\AppData\Local\Android\Sdk\tools\bin;C:\Program Files\dotnet;C:\Program Files\Amazon\AWSCLIV2;C:\Users\Dynex\Desktop\C;bin;C:\Program Files\nodejs;C:\Program Files\Docker\Docker\resources\bin;C:\ProgramData\DockerDesktop\version-bin;C:\Program Files\MySQL\MySQL Shell 8.0\bin;C:\Users\Dynex\AppData\Local\Microsoft\WindowsApps;C:\Users\Dynex\AppData\Local\GitHubDesktop\bin;C:\Users\Dynex\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\heroku\bin;C:\Users\Dynex\.dotnet\tools;C:\Users\Dynex\AppData\Local\Programs\mongosh;C:\Users\Dynex\AppData\Roaming\npm;C:\Users\Dynex\.deno\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
@@ -14,16 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.npmjs.org/date-fns/-/date-fns-2.15.0.tgz: ESOCKETTIMEDOUT
-      at ClientRequest.<anonymous> (C:\Users\Dynex\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141390:19)
-      at Object.onceWrapper (events.js:519:28)
-      at ClientRequest.emit (events.js:400:28)
-      at TLSSocket.emitRequestTimeout (_http_client.js:790:9)
-      at Object.onceWrapper (events.js:519:28)
-      at TLSSocket.emit (events.js:412:35)
-      at TLSSocket.Socket._onTimeout (net.js:484:8)
-      at listOnTimeout (internal/timers.js:557:17)
-      at processTimers (internal/timers.js:500:7)
+  Error: EBUSY: resource busy or locked, copyfile 'C:\Users\Dynex\AppData\Local\Yarn\Cache\v6\npm-denque-2.0.1-bcef4c1b80dc32efe97515744f21a4229ab8934a-integrity\node_modules\denque\package.json' -> 'C:\Users\Dynex\Desktop\garcon-backend node\node_modules\mongodb\node_modules\denque\package.json'
 
 npm manifest: 
   {
@@ -33,14 +24,15 @@ npm manifest:
     "license": "MIT",
     "scripts": {
       "start": "node server.js",
-      "dev": "nodemon server.js"
+      "start:dev": "tsc && cd dist & nodemon server.js"
     },
     "dependencies": {
       "@admin-bro/express": "^3.1.0",
       "@admin-bro/mongoose": "^1.1.0",
+      "@socket.io/mongo-adapter": "^0.1.0",
       "admin-bro": "^4.0.1",
       "apollo-server-express": "^3.3.0",
-      "connect-mongodb-session": "^3.1.0",
+      "connect-mongo": "^4.6.0",
       "express": "^4.17.1",
       "express-formidable": "^1.2.0",
       "express-graphql": "^0.12.0",
@@ -50,6 +42,9 @@ npm manifest:
       "mongoose": "^6.0.2"
     },
     "devDependencies": {
+      "@types/connect-mongodb-session": "^2.4.2",
+      "@types/express-session": "^1.17.4",
+      "@types/mongodb": "^4.0.7",
       "nodemon": "^2.0.12"
     },
     "engines": {
@@ -1410,6 +1405,14 @@ Lockfile:
     resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-4.2.0.tgz#667bfc6186ae7c9e0b45a08960c551437176e1ca"
     integrity sha512-VkE3KLBmJwcCaVARtQpfuKcKv8gcBmUubrfHGF84dXuuW6jgsRYxPtzcIhPyK9WAPpRt2/xY6zkD9MnRaJzSyw==
   
+  "@socket.io/mongo-adapter@^0.1.0":
+    version "0.1.0"
+    resolved "https://registry.npmjs.org/@socket.io/mongo-adapter/-/mongo-adapter-0.1.0.tgz#58c569675728498d7aa7d873790cc272003d53a1"
+    integrity sha512-hpwbiI2DELsJ7G31PG/MWpPUo4D50deTVNXMOp2E1nSO/slqqCKipmifVlVPceJrTLyky+YhrbpCq0yCNztxDw==
+    dependencies:
+      debug "~4.3.1"
+      socket.io-adapter "~2.3.0"
+  
   "@styled-system/background@^5.1.2":
     version "5.1.2"
     resolved "https://registry.npmjs.org/@styled-system/background/-/background-5.1.2.tgz#75c63d06b497ab372b70186c0bf608d62847a2ba"
@@ -1529,6 +1532,13 @@ Lockfile:
       "@types/connect" "*"
       "@types/node" "*"
   
+  "@types/bson@*":
+    version "4.2.0"
+    resolved "https://registry.npmjs.org/@types/bson/-/bson-4.2.0.tgz#a2f71e933ff54b2c3bf267b67fa221e295a33337"
+    integrity sha512-ELCPqAdroMdcuxqwMgUpifQyRoTpyYCNr1V9xKyF40VsBobsj+BbWNRvwGchMgBPGqkw655ypkjj2MEF5ywVwg==
+    dependencies:
+      bson "*"
+  
   "@types/cacheable-request@^6.0.1":
     version "6.0.2"
     resolved "https://registry.npmjs.org/@types/cacheable-request/-/cacheable-request-6.0.2.tgz#c324da0197de0a98a2312156536ae262429ff6b9"
@@ -1538,6 +1548,14 @@ Lockfile:
       "@types/keyv" "*"
       "@types/node" "*"
       "@types/responselike" "*"
+  
+  "@types/connect-mongodb-session@^2.4.2":
+    version "2.4.2"
+    resolved "https://registry.npmjs.org/@types/connect-mongodb-session/-/connect-mongodb-session-2.4.2.tgz#04ea3b143cbd25dd6fa9904696e1afe46ff3dba2"
+    integrity sha512-Fer+/SUi6ZtOPSsz3Js2YrUCO1KFDbxMWEIZHr5xAPMmEeXc0Owtna1im2qtgV+8R5D1Zqon+OTnvEKdqXAbjw==
+    dependencies:
+      "@types/express-session" "*"
+      "@types/mongodb" "^3.6.20"
   
   "@types/connect@*":
     version "3.4.35"
@@ -1570,7 +1588,14 @@ Lockfile:
       "@types/qs" "*"
       "@types/range-parser" "*"
   
-  "@types/express@4.17.13":
+  "@types/express-session@*", "@types/express-session@^1.17.4":
+    version "1.17.4"
+    resolved "https://registry.npmjs.org/@types/express-session/-/express-session-1.17.4.tgz#97a30a35e853a61bdd26e727453b8ed314d6166b"
+    integrity sha512-7cNlSI8+oOBUHTfPXMwDxF/Lchx5aJ3ho7+p9jJZYVg9dVDJFh3qdMXmJtRsysnvS+C6x46k9DRYmrmCkE+MVg==
+    dependencies:
+      "@types/express" "*"
+  
+  "@types/express@*", "@types/express@4.17.13":
     version "4.17.13"
     resolved "https://registry.npmjs.org/@types/express/-/express-4.17.13.tgz#a76e2995728999bab51a33fabce1d705a3709034"
     integrity sha512-6bSZTPaTIACxn48l50SR+axgrqm6qXFIxrdAKaG6PaJk3+zuUr35hBlgT7vOmJcum+OEaIBLtHV/qloEAFITeA==
@@ -1609,6 +1634,21 @@ Lockfile:
     version "1.3.2"
     resolved "https://registry.npmjs.org/@types/mime/-/mime-1.3.2.tgz#93e25bf9ee75fe0fd80b594bc4feb0e862111b5a"
     integrity sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==
+  
+  "@types/mongodb@^3.6.20":
+    version "3.6.20"
+    resolved "https://registry.npmjs.org/@types/mongodb/-/mongodb-3.6.20.tgz#b7c5c580644f6364002b649af1c06c3c0454e1d2"
+    integrity sha512-WcdpPJCakFzcWWD9juKoZbRtQxKIMYF/JIAM4JrNHrMcnJL6/a2NWjXxW7fo9hxboxxkg+icff8d7+WIEvKgYQ==
+    dependencies:
+      "@types/bson" "*"
+      "@types/node" "*"
+  
+  "@types/mongodb@^4.0.7":
+    version "4.0.7"
+    resolved "https://registry.npmjs.org/@types/mongodb/-/mongodb-4.0.7.tgz#ebaa80c53b684ea52ccfe7721c0f5c9ef7b4f511"
+    integrity sha512-lPUYPpzA43baXqnd36cZ9xxorprybxXDzteVKCPAdp14ppHtFJHnXYvNpmBvtMUTb5fKXVv6sVbzo1LHkWhJlw==
+    dependencies:
+      mongodb "*"
   
   "@types/node@*":
     version "16.7.6"
@@ -1925,6 +1965,16 @@ Lockfile:
     resolved "https://registry.npmjs.org/array-flatten/-/array-flatten-1.1.1.tgz#9a5f699051b1e7073328f2a008968b64ea2955d2"
     integrity sha1-ml9pkFGx5wczKPKgCJaLZOopVdI=
   
+  asn1.js@^5.4.1:
+    version "5.4.1"
+    resolved "https://registry.npmjs.org/asn1.js/-/asn1.js-5.4.1.tgz#11a980b84ebb91781ce35b0fdc2ee294e3783f07"
+    integrity sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==
+    dependencies:
+      bn.js "^4.0.0"
+      inherits "^2.0.1"
+      minimalistic-assert "^1.0.0"
+      safer-buffer "^2.1.0"
+  
   async-retry@^1.2.1:
     version "1.3.3"
     resolved "https://registry.npmjs.org/async-retry/-/async-retry-1.3.3.tgz#0e7f36c04d8478e7a58bdbed80cedf977785f280"
@@ -2035,6 +2085,11 @@ Lockfile:
     resolved "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
     integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
   
+  bn.js@^4.0.0:
+    version "4.12.0"
+    resolved "https://registry.npmjs.org/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
+    integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
+  
   body-parser@1.19.0, body-parser@^1.19.0:
     version "1.19.0"
     resolved "https://registry.npmjs.org/body-parser/-/body-parser-1.19.0.tgz#96b2709e57c9c4e09a6fd66a8fd979844f69f08a"
@@ -2090,6 +2145,13 @@ Lockfile:
       escalade "^3.1.1"
       nanocolors "^0.2.12"
       node-releases "^1.1.76"
+  
+  bson@*, bson@^4.5.4:
+    version "4.5.4"
+    resolved "https://registry.npmjs.org/bson/-/bson-4.5.4.tgz#5f74f1e11f743ea8aec30b5e24bfddae82846873"
+    integrity sha512-wIt0bPACnx8Ju9r6IsS2wVtGDHBr9Dxb+U29A1YED2pu8XOhS8aKjOnLZ8sxyXkPwanoK7iWWVhS1+coxde6xA==
+    dependencies:
+      buffer "^5.6.0"
   
   bson@^4.2.2, bson@^4.5.1:
     version "4.5.1"
@@ -2366,6 +2428,14 @@ Lockfile:
       write-file-atomic "^3.0.0"
       xdg-basedir "^4.0.0"
   
+  connect-mongo@^4.6.0:
+    version "4.6.0"
+    resolved "https://registry.npmjs.org/connect-mongo/-/connect-mongo-4.6.0.tgz#1bf62868efc9f28ecf1459ae9a9d6caaf90ae8a6"
+    integrity sha512-8new4Z7NLP3CGP65Aw6ls3xDBeKVvHRSh39CXuDZTQsvpeeU9oNMzfFgvqmHqZ6gWpxIl663RyoVEmCAGf1yOg==
+    dependencies:
+      debug "^4.3.1"
+      kruptein "^3.0.0"
+  
   connect-mongodb-session@^3.1.0:
     version "3.1.0"
     resolved "https://registry.npmjs.org/connect-mongodb-session/-/connect-mongodb-session-3.1.0.tgz#26e09ef7720f3a6636c3e61dafa0386f97de6569"
@@ -2508,7 +2578,7 @@ Lockfile:
     dependencies:
       ms "2.0.0"
   
-  debug@4.x, debug@^4.1.0, debug@^4.1.1:
+  debug@4.x, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@~4.3.1:
     version "4.3.2"
     resolved "https://registry.npmjs.org/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
     integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
@@ -3479,6 +3549,13 @@ Lockfile:
     resolved "https://registry.npmjs.org/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
     integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
   
+  kruptein@^3.0.0:
+    version "3.0.3"
+    resolved "https://registry.npmjs.org/kruptein/-/kruptein-3.0.3.tgz#2073eba5cccbe5ad510b03416950f8a3e2e394c4"
+    integrity sha512-v5mqSHKS2M1xWUo5V7Q6TMcj1vjTgKWvfspizn6Z939Cmv8NNn5E+Z4LeGBEKDL3yT4pMXaRTjh98oksGTDntA==
+    dependencies:
+      asn1.js "^5.4.1"
+  
   kuler@^2.0.0:
     version "2.0.0"
     resolved "https://registry.npmjs.org/kuler/-/kuler-2.0.0.tgz#e2c570a3800388fb44407e851531c1d670b061b3"
@@ -3686,6 +3763,11 @@ Lockfile:
       "@babel/runtime" "^7.12.1"
       tiny-warning "^1.0.3"
   
+  minimalistic-assert@^1.0.0:
+    version "1.0.1"
+    resolved "https://registry.npmjs.org/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz#2e194de044626d4a10e7f7fbc00ce73e83e4d5c7"
+    integrity sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==
+  
   minimatch@^3.0.4:
     version "3.0.4"
     resolved "https://registry.npmjs.org/minimatch/-/minimatch-3.0.4.tgz#5166e286457f03306064be5497e8dbb0c3d32083"
@@ -3705,6 +3787,25 @@ Lockfile:
     dependencies:
       "@types/whatwg-url" "^8.2.1"
       whatwg-url "^9.1.0"
+  
+  mongodb-connection-string-url@^2.1.0:
+    version "2.1.0"
+    resolved "https://registry.npmjs.org/mongodb-connection-string-url/-/mongodb-connection-string-url-2.1.0.tgz#9c522c11c37f571fecddcb267ac4a76ef432aeb7"
+    integrity sha512-Qf9Zw7KGiRljWvMrrUFDdVqo46KIEiDuCzvEN97rh/PcKzk2bd6n9KuzEwBwW9xo5glwx69y1mI6s+jFUD/aIQ==
+    dependencies:
+      "@types/whatwg-url" "^8.2.1"
+      whatwg-url "^9.1.0"
+  
+  mongodb@*:
+    version "4.1.4"
+    resolved "https://registry.npmjs.org/mongodb/-/mongodb-4.1.4.tgz#ba8062c7c67e7a22db5a059dbac1e3044b48453b"
+    integrity sha512-Cv/sk8on/tpvvqbEvR1h03mdyNdyvvO+WhtFlL4jrZ+DSsN/oSQHVqmJQI/sBCqqbOArFcYCAYDfyzqFwV4GSQ==
+    dependencies:
+      bson "^4.5.4"
+      denque "^2.0.1"
+      mongodb-connection-string-url "^2.1.0"
+    optionalDependencies:
+      saslprep "^1.0.3"
   
   mongodb@4.1.1:
     version "4.1.1"
@@ -4579,7 +4680,7 @@ Lockfile:
     resolved "https://registry.npmjs.org/safe-stable-stringify/-/safe-stable-stringify-1.1.1.tgz#c8a220ab525cd94e60ebf47ddc404d610dc5d84a"
     integrity sha512-ERq4hUjKDbJfE4+XtZLFPCDi8Vb1JqaxAPTxWFLBx8XcAlf9Bda/ZJdVezs/NAfsMQScyIlUMx+Yeu7P7rx5jw==
   
-  "safer-buffer@>= 2.1.2 < 3":
+  "safer-buffer@>= 2.1.2 < 3", safer-buffer@^2.1.0:
     version "2.1.2"
     resolved "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
     integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
@@ -4720,6 +4821,11 @@ Lockfile:
     version "1.0.1"
     resolved "https://registry.npmjs.org/sliced/-/sliced-1.0.1.tgz#0b3a662b5d04c3177b1926bea82b03f837a2ef41"
     integrity sha1-CzpmK10Ewxd7GSa+qCsD+Dei70E=
+  
+  socket.io-adapter@~2.3.0:
+    version "2.3.2"
+    resolved "https://registry.npmjs.org/socket.io-adapter/-/socket.io-adapter-2.3.2.tgz#039cd7c71a52abad984a6d57da2c0b7ecdd3c289"
+    integrity sha512-PBZpxUPYjmoogY0aoaTmo1643JelsaS1CiAwNjRVdrI0X9Seuc19Y2Wife8k88avW6haG8cznvwbubAZwH4Mtg==
   
   source-map-support@^0.5.16, source-map-support@~0.5.12:
     version "0.5.20"
@@ -5228,3 +5334,4 @@ Lockfile:
       string-width "^4.2.0"
       y18n "^5.0.5"
       yargs-parser "^20.2.2"
+^20.2.2"

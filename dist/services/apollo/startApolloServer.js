@@ -21,6 +21,7 @@ function startApolloServer(httpServer) {
         const server = new apollo_server_express_1.ApolloServer({
             typeDefs: typeDefs_1.default,
             resolvers: resolvers_1.default,
+            context: ({ req }) => req,
             plugins: [(0, apollo_server_core_1.ApolloServerPluginDrainHttpServer)({ httpServer })]
         });
         return server;

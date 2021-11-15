@@ -2,27 +2,34 @@ import { gql } from "apollo-server-express";
 
 const typeDefs = gql`
   type Restaurant {
-    #Add instagram?
     name: String
     description: String
     menus: [Menu]
   }
 
   type Menu {
-    name: String!
-    menuItems: [MenuItem]!
+    name: String
+    menuItems: [MenuItem]
   }
 
   type MenuItem {
-    _id: String
-    name: String!
+    name: String
     description: String
-    price: Float!
+    price: Float
     imageUrl: String
+  }
+
+  type Order {
+    orderItems: [ID]
+    totalAmount: Int
+    tableId: Int
+    restaurantId: String
   }
 
   type Query {
     getRestaurant(id: String!): Restaurant
+    test: String
+    test2: String
   }
 
   type Mutation {
