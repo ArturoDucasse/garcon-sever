@@ -1,4 +1,4 @@
-import AdminBro, { Router } from "admin-bro";
+import AdminBro from "admin-bro";
 import AdminBroMongoose from "@admin-bro/mongoose";
 import mongoConnection from "../../mongo/connection";
 import AdminBroExpress from "@admin-bro/express";

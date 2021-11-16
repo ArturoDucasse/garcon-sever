@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node server.js",
-    "start:dev": "tsc & cd dist & nodemon server.js"
+    "start:dev": "tsc & cd dist && nodemon server.js"
   },
   "dependencies": {
     "@admin-bro/express": "^3.1.0",
@@ -20,12 +20,15 @@
     "express-session": "^1.17.2",
     "graphql": "^15.5.1",
     "graphql-scalars": "^1.10.1",
-    "mongoose": "^6.0.2"
+    "mongodb": "^4.1.4",
+    "mongoose": "^6.0.2",
+    "socket.io": "^4.3.2"
   },
   "devDependencies": {
     "@types/connect-mongodb-session": "^2.4.2",
     "@types/express-session": "^1.17.4",
     "@types/mongodb": "^4.0.7",
+    "@types/mongoose": "^5.11.97",
     "nodemon": "^2.0.12"
   },
   "engines": {
