@@ -1,33 +1,57 @@
-import Restaurant from "../mongo/models/restaurant";
+import { PubSub, withFilter } from "graphql-subscriptions";
+import { Request } from "express";
+
+import MenuItem, { IMenuItem } from "../mongo/models/menuItem";
+import { OrderInput } from "./typeDefs";
+
+const pubsub = new PubSub();
 
 const resolvers = {
-  Query: {
-    async getRestaurant(
-      _parent: any,
-      { id }: any,
-      context: { session: { user: any }; query: any },
-      _info: any
-    ) {
-      context.session.user = context.query;
-      const restaurant = await Restaurant.findById(id).populate({
-        path: "menus",
-        populate: { path: "menuItems" }
+  Query: {},
+  Mutation: {
+    async createOrder(_: any, args: any, context: Request) {
+      const arg = args.input as OrderInput;
+      //Todo: Get the restaurant ID with the session ~ req.session.restaurantId
+      //Todo: Get the userId in the item ~ item.userId = req.session._id
+      //Todo: throw error if order is empty
+      const order: IMenuItem[] = [];
+
+      for (const id of arg.order) {
+        const item: IMenuItem | null = await MenuItem.findById(id);
+        if (!item) throw new Error("Item not found");
+        item.imageUrl = "test"; //Todo: Delete this
+        item.tableId = arg.tableId;
+        order.push(item);
+      }
+
+      pubsub.publish("ORDER_CREATED", {
+        orderCreated: {
+          restaurantId: arg.restaurantId, //Change this to context.session.restaurantId
+          // userId: context.session.userId,
+          tableId: arg.tableId,
+          order
+        }
       });
-      return restaurant;
+      //Todo: Update the success message
+      return "success";
     },
-    test(_parent: any, _args: any, context: any) {
-      // console.log(context.session, "context");
-      context.session.test = "testing";
-      return context.session.test + " " + "success";
-    },
-    test2(p: any, a: any, context: { session: { test: any } }) {
-      return context.session.test;
+    async orderComplete(_: any, _args: any) {
+      pubsub.publish("ORDER_COMPLETE", { isOrderComplete: "hola" });
+      return "success";
     }
   },
-  Mutation: {
-    createOrder(parent: any, { ordersArray }: any, context: any, info: any) {
-      // context.session.user.orders = ordersArray;
-      return "Success";
+
+  Subscription: {
+    orderCreated: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator("ORDER_CREATED"),
+        ({ orderCreated }, variables) => {
+          return orderCreated.restaurantId === variables.restaurantId;
+        }
+      )
+    },
+    isOrderComplete: {
+      subscribe: () => pubsub.asyncIterator(["ORDER_COMPLETE"])
     }
   }
 };

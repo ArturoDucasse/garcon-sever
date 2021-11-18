@@ -1,41 +1,50 @@
 import { gql } from "apollo-server-express";
+import { Types } from "mongoose";
+
+export type OrderInput = {
+  restaurantId: string; //TODO: Delete this field, value will be getted from the req.session
+  tableId: number;
+  order: [Types.ObjectId];
+};
 
 const typeDefs = gql`
-  type Restaurant {
-    name: String
-    description: String
-    menus: [Menu]
+  input OrderInput {
+    restaurantId: String
+    tableId: Int!
+    order: [String]
   }
 
-  type Menu {
-    name: String
-    menuItems: [MenuItem]
-  }
-
-  type MenuItem {
+  type ItemMenu {
+    _id: ID
     name: String
     description: String
     price: Float
     imageUrl: String
+    tableId: Int
+    #userId: Int
   }
 
   type Order {
-    orderItems: [ID]
-    totalAmount: Int
-    tableId: Int
     restaurantId: String
+    tableId: Int
+    order: [ItemMenu]
+    userId: String
   }
 
   type Query {
-    getRestaurant(id: String!): Restaurant
-    test: String
-    test2: String
+    #query to return a single user order
+    #query to return all orders/users from a table
+    mock: String
   }
 
   type Mutation {
-    createOrder(ordersArray: [ID]): String
-    updateOrder: String
-    deleteOrder: String
+    createOrder(input: OrderInput): String
+    orderComplete(userId: ID): String
+  }
+
+  type Subscription {
+    orderCreated(restaurantId: ID): Order
+    isOrderComplete(userId: ID!): String
   }
 `;
 

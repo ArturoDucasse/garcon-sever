@@ -1,11 +1,13 @@
 import { Schema, Types, Model, model } from "mongoose";
 
-interface IMenuItem {
+export interface IMenuItem {
   name: string;
-  description: string;
   price: number;
+  tableId: number;
   imageUrl: string;
+  description: string;
   menuId: Types.ObjectId;
+  userId?: string; //TODO: Make this mandatory
 }
 
 const menuItemSchema = new Schema<IMenuItem>({

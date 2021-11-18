@@ -12,20 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const apollo_server_express_1 = require("apollo-server-express");
-const apollo_server_core_1 = require("apollo-server-core");
-const schema_1 = require("@graphql-tools/schema");
-const typeDefs_1 = __importDefault(require("../../graphql/typeDefs"));
-const resolvers_1 = __importDefault(require("../../graphql/resolvers"));
-const schema = (0, schema_1.makeExecutableSchema)({ typeDefs: typeDefs_1.default, resolvers: resolvers_1.default });
-function startApolloServer(httpServer) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const server = new apollo_server_express_1.ApolloServer({
-            schema,
-            context: ({ req }) => req,
-            plugins: [(0, apollo_server_core_1.ApolloServerPluginDrainHttpServer)({ httpServer })]
+const menu_1 = __importDefault(require("../mongo/models/menu"));
+const menuItem_1 = __importDefault(require("../mongo/models/menuItem"));
+const restaurant_1 = __importDefault(require("../mongo/models/restaurant"));
+exports.default = (req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.params;
+        req.session.data = data;
+        const restaurant = yield restaurant_1.default.findById(data.restaurantId).populate({
+            path: "menus",
+            model: menu_1.default,
+            populate: { path: "menuItems", model: menuItem_1.default }
         });
-        return [server, schema];
-    });
-}
-exports.default = startApolloServer;
+        if (!restaurant)
+            throw new Error("Restaurant not found");
+        res.json(restaurant).status(200);
+    }
+    catch (error) {
+        res.status(404).json({ success: false, error: error.message });
+        // next(error); Create error handler
+    }
+});
