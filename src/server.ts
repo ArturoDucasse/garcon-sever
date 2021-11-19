@@ -44,6 +44,8 @@ const startServer = async () => {
     try {
       const params = req.params;
 
+      if (!req.session) throw new Error("Session not created");
+
       req.session.restaurantId =
         params.restaurantId as unknown as Types.ObjectId;
       req.session.tableId = +params.tableId;

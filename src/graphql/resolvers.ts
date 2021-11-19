@@ -16,6 +16,7 @@ const resolvers = {
       const arg = args.input as OrderInput;
       const order: IMenuItem[] = [];
       if (!arg.order) throw new Error("No order in current order");
+      if (!context.session) throw new Error("Session not created");
 
       if (context.session.order) {
         for (const item of arg.order) {
