@@ -1,18 +1,17 @@
+import { Types } from "mongoose";
 import http from "http";
 import express from "express";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { execute, subscribe } from "graphql";
-import { Types } from "mongoose";
 
-import mongodb from "./mongo/connection";
+import Session from "./mongo/models/session";
 import apolloServer from "./services/apollo/startApolloServer";
 import admin from "./services/adminBro/startAdminBro";
 import Restaurant from "./mongo/models/restaurant";
 import Menu from "./mongo/models/menu";
 import MenuItems from "./mongo/models/menuItem";
-import { Credentials } from "./@types/globalTypes";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -35,18 +34,19 @@ app.use(
 const startServer = async () => {
   const [apollo, schema] = await apolloServer(httpServer);
   const [adminBro, router] = await admin();
-  await mongodb();
+  const test = await Session.find();
+
+  console.log(test, "testing");
 
   app.use(adminBro.options.rootPath, router);
 
   app.get("/:restaurantId/:tableId", async (req, res, next) => {
     try {
-      const params: Credentials = req.params as unknown as {
-        restaurantId: Types.ObjectId;
-        tableId: number;
-      };
+      const params = req.params;
 
-      req.session.userCredential = params;
+      req.session.restaurantId =
+        params.restaurantId as unknown as Types.ObjectId;
+      req.session.tableId = +params.tableId;
 
       const restaurant = await Restaurant.findById(
         params.restaurantId

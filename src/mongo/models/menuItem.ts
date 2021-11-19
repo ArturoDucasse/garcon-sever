@@ -7,7 +7,8 @@ export interface IMenuItem {
   imageUrl: string;
   description: string;
   menuId: Types.ObjectId;
-  userId?: string; //TODO: Make this mandatory
+  sessionId?: string; //TODO: Make this mandatory
+  quantity?: number;
 }
 
 const menuItemSchema = new Schema<IMenuItem>({

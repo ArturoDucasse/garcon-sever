@@ -18,7 +18,7 @@
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
     "express-graphql": "^0.12.0",
-    "express-session": "^1.17.2",
+    "express-session": "^1.15.6",
     "graphql": "^15.5.1",
     "graphql-scalars": "^1.10.1",
     "graphql-subscriptions": "^2.0.0",
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@types/connect-mongodb-session": "^2.4.2",
-    "@types/express-session": "^1.17.4",
     "@types/mongodb": "^4.0.7",
+    "@types/express-session": "^1.17.4",
     "@types/mongoose": "^5.11.97",
     "nodemon": "^2.0.12",
     "ts-node": "^10.4.0",

@@ -1,50 +1,90 @@
-import { gql } from "apollo-server-express";
 import { Types } from "mongoose";
+import { gql } from "apollo-server-express";
 
 export type OrderInput = {
-  restaurantId: string; //TODO: Delete this field, value will be getted from the req.session
+  restaurantId: string; //TODO: Delete this field, value will be generated from the req.session
   tableId: number;
   order: [Types.ObjectId];
 };
 
+export enum OrderStage {
+  COMPLETE = "Complete",
+  UPDATE = "Update",
+  DELETE = "Delete"
+}
+
 const typeDefs = gql`
-  input OrderInput {
+  input CreateOrderInput {
     restaurantId: String
     tableId: Int!
     order: [String]
   }
 
-  type ItemMenu {
-    _id: ID
+  input ItemMenuInput {
     name: String
     description: String
     price: Float
     imageUrl: String
     tableId: Int
-    #userId: Int
+    quantity: Int
+  }
+
+  type ItemMenu {
+    name: String
+    description: String
+    price: Float
+    imageUrl: String
+    tableId: Int
+    quantity: Int
   }
 
   type Order {
     restaurantId: String
     tableId: Int
     order: [ItemMenu]
-    userId: String
+    sessionId: String
+  }
+
+  type User {
+    order: [ItemMenu]
+    table: Int
+  }
+
+  input GetUsersInTableInput {
+    tableId: Int
+    restaurantId: Int
   }
 
   type Query {
-    #query to return a single user order
-    #query to return all orders/users from a table
-    mock: String
+    getUser(sessionId: ID): User
+    getUsersInTable(input: GetUsersInTableInput): [User]
   }
 
   type Mutation {
-    createOrder(input: OrderInput): String
-    orderComplete(userId: ID): String
+    createOrder(input: CreateOrderInput): String
+    orderComplete(sessionId: ID): String
+    updateOrder(input: UpdateOrderInput): String
+    closeOrder(sessionId: ID): String
+  }
+
+  input UpdateOrderInput {
+    sessionId: String
+    order: [ItemMenuInput]
+  }
+
+  type OrderStatus {
+    isComplete: Boolean
+    update: OrderUpdate
+    sessionId: String
+  }
+
+  type OrderUpdate {
+    order: [ItemMenu]
   }
 
   type Subscription {
-    orderCreated(restaurantId: ID): Order
-    isOrderComplete(userId: ID!): String
+    orderCreated(restaurantId: ID!): Order
+    orderStatus(sessionId: ID!): OrderStatus
   }
 `;
 

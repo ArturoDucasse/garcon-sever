@@ -1,4 +1,4 @@
-import { Schema, model, Model, Types } from "mongoose";
+import { Schema, model, Model } from "mongoose";
 
 export interface IOrder {
   orderItems: any;

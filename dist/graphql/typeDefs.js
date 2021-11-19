@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const apollo_server_express_1 = require("apollo-server-express");
-const typeDefs = (0, apollo_server_express_1.gql) `
+const typeDefs = (0, apollo_server_express_1.gql)`
   input OrderInput {
     tableId: Int!
     order: [String]
   }
 
   type Order {
-    userId: String
+    sessionId: String
     tableId: Int
     orderItems: [ID]
     restaurantId: String
