@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import http from "http";
 import express from "express";
 import session from "express-session";
@@ -9,9 +8,7 @@ import { execute, subscribe } from "graphql";
 import Session from "./mongo/models/session";
 import apolloServer from "./services/apollo/startApolloServer";
 import admin from "./services/adminBro/startAdminBro";
-import Restaurant from "./mongo/models/restaurant";
-import Menu from "./mongo/models/menu";
-import MenuItems from "./mongo/models/menuItem";
+import { getRestaurant } from "./controllers/restaurant";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -34,38 +31,13 @@ app.use(
 const startServer = async () => {
   const [apollo, schema] = await apolloServer(httpServer);
   const [adminBro, router] = await admin();
-  const test = await Session.find();
+  const test = await Session.find({ "session.tableId": 2 });
 
   console.log(test, "testing");
 
   app.use(adminBro.options.rootPath, router);
 
-  app.get("/:restaurantId/:tableId", async (req, res, next) => {
-    try {
-      const params = req.params;
-
-      if (!req.session) throw new Error("Session not created");
-
-      req.session.restaurantId =
-        params.restaurantId as unknown as Types.ObjectId;
-      req.session.tableId = +params.tableId;
-
-      const restaurant = await Restaurant.findById(
-        params.restaurantId
-      ).populate({
-        path: "menus",
-        model: Menu,
-        populate: { path: "menuItems", model: MenuItems }
-      });
-
-      if (!restaurant) throw new Error("Restaurant not found");
-
-      res.json(restaurant).status(200);
-    } catch (error: any) {
-      // next(error); Create error handler
-      res.status(404).json({ success: false, error: error.message });
-    }
-  });
+  app.get("/:restaurantId/:tableId", getRestaurant);
 
   await apollo.start();
   apollo.applyMiddleware({ app });
