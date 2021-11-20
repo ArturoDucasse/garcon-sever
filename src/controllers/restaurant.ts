@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
+import ShortUniqueId from "short-unique-id";
 
 import Restaurant from "../mongo/models/restaurant";
 import Menu from "../mongo/models/menu";
@@ -12,11 +13,14 @@ export const getRestaurant = async (
 ) => {
   try {
     const params = req.params;
+    const lengthOfUniqueId = 12;
+    const uid = new ShortUniqueId({ length: lengthOfUniqueId });
 
     if (!req.session) throw new Error("Session not created");
 
     req.session.restaurantId = params.restaurantId as unknown as Types.ObjectId;
     req.session.tableId = +params.tableId;
+    req.session.userId = uid() as string;
 
     const restaurant = await Restaurant.findById(params.restaurantId).populate({
       path: "menus",

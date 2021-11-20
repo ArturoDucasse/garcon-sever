@@ -7,7 +7,7 @@ export interface IMenuItem {
   imageUrl: string;
   description: string;
   menuId: Types.ObjectId;
-  sessionId?: string; //TODO: Make this mandatory
+  userId?: string; //TODO: Make this mandatory
   quantity?: number;
 }
 

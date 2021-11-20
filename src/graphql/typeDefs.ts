@@ -3,9 +3,25 @@ import { gql } from "apollo-server-express";
 
 export type OrderInput = {
   restaurantId: string; //TODO: Delete this field, value will be generated from the req.session
-  tableId: number;
+  tableId: number; //Todo: Delete
   order: [Types.ObjectId];
+  userId: string; //Todo: Delete as well, will be generated from the req.session
 };
+
+export type UpdateOrderInput = {
+  userId: String;
+  order: [ItemMenuInput];
+};
+
+interface ItemMenuInput {
+  _id: Types.ObjectId;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  tableId: number;
+  quantity: number;
+}
 
 export enum OrderStage {
   COMPLETE = "Complete",
@@ -21,6 +37,7 @@ const typeDefs = gql`
   }
 
   input ItemMenuInput {
+    _id: ID
     name: String
     description: String
     price: Float
@@ -42,7 +59,7 @@ const typeDefs = gql`
     restaurantId: String
     tableId: Int
     order: [ItemMenu]
-    sessionId: String
+    userId: String
   }
 
   type User {
@@ -56,26 +73,28 @@ const typeDefs = gql`
   }
 
   type Query {
-    getUser(sessionId: ID): User
+    getUser(userId: ID): User
     getUsersInTable(input: GetUsersInTableInput): [User]
   }
 
   type Mutation {
     createOrder(input: CreateOrderInput): String
-    orderComplete(sessionId: ID): String
+    orderComplete(userId: ID): String
     updateOrder(input: UpdateOrderInput): String
-    closeOrder(sessionId: ID): String
+    closeOrderAndSave(userId: ID): String
+    closeOrder(userId: ID): String
+    closeAllOrdersInTable(restaurantId: String, tableId: Int): String
   }
 
   input UpdateOrderInput {
-    sessionId: String
+    userId: String
     order: [ItemMenuInput]
   }
 
   type OrderStatus {
-    isComplete: Boolean
+    status: String
     update: OrderUpdate
-    sessionId: String
+    userId: String
   }
 
   type OrderUpdate {
@@ -84,7 +103,7 @@ const typeDefs = gql`
 
   type Subscription {
     orderCreated(restaurantId: ID!): Order
-    orderStatus(sessionId: ID!): OrderStatus
+    orderStatus(userId: ID!): OrderStatus
   }
 `;
 

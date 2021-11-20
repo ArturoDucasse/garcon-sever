@@ -31,9 +31,6 @@ app.use(
 const startServer = async () => {
   const [apollo, schema] = await apolloServer(httpServer);
   const [adminBro, router] = await admin();
-  const test = await Session.find({ "session.tableId": 2 });
-
-  console.log(test, "testing");
 
   app.use(adminBro.options.rootPath, router);
 

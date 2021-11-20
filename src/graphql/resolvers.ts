@@ -1,8 +1,12 @@
+import { IOrder } from "./../mongo/models/order";
 import { PubSub, withFilter } from "graphql-subscriptions";
 import { Request } from "express";
+import { Types } from "mongoose";
 
 import MenuItem, { IMenuItem } from "../mongo/models/menuItem";
-import { OrderInput, OrderStage } from "./typeDefs";
+import Order from "../mongo/models/order";
+import { OrderInput, OrderStage, UpdateOrderInput } from "./typeDefs";
+import Session from "../mongo/models/session";
 
 const pubsub = new PubSub();
 
@@ -15,10 +19,10 @@ const resolvers = {
     async createOrder(_: any, args: any, context: Request) {
       const arg = args.input as OrderInput;
       const order: IMenuItem[] = [];
-      if (!arg.order) throw new Error("No order in current order");
-      if (!context.session) throw new Error("Session not created");
+      if (!arg.order) throw new Error("Missing information from current order");
+      if (!context.session) throw new Error("Missing user credentials ");
 
-      if (context.session.order) {
+      if (!context.session.order.length) {
         for (const item of arg.order) {
           context.session.order.push(item);
         }
@@ -27,7 +31,12 @@ const resolvers = {
         pubsub.publish("ORDER_CREATED", {
           orderCreated: {
             ...arg,
-            order // sessionId: context.session.sessionId
+            order,
+            userId: "123",
+            restaurantId: "321"
+
+            // userId: context.session.userId
+            //restaurantId: context.session.restaurantId
           }
         });
         return "success";
@@ -39,11 +48,14 @@ const resolvers = {
         orderCreated: {
           ...arg,
           order,
-          sessionId: 123 // sessionId: context.session.sessionId
+          userId: "123", // userId: context.session.userId
+          restaurantId: "321"
         }
       });
       //Todo: Update the success message
-      // context.session.userCredential!.order = arg.order;
+      //Todo: Only send a order to the subscription if the order is stored in the context.session,
+      // as well, only save in the context.session if the order was send to the subscription
+      context.session.order = arg.order;
       return "success";
     },
     orderComplete(_: any) {
@@ -52,12 +64,18 @@ const resolvers = {
       });
       return "success";
     },
-    updateOrder(_: any, args: any) {
-      //Update order in user.session
-      //Todo: Can only update orders for 5m (example)
+    async updateOrder(_: any, args: any) {
+      const arg = args.input as UpdateOrderInput;
+      const user = await Session.findOne({ "session.userId": arg.userId });
+      if (!user) throw new Error("User not found");
+      const newOrderIds: Types.ObjectId[] = arg.order.map((item) => item._id);
+
+      user.session.order = newOrderIds as [Types.ObjectId];
+      user.save();
       pubsub.publish("ORDER_STATUS", {
         orderStatus: {
-          status: OrderStage.UPDATE,
+          userId: arg.userId,
+          status: "UPDATE",
           update: {
             order: args.order
           }
@@ -65,14 +83,54 @@ const resolvers = {
       });
       return "success";
     },
-    closeOrder(_: any, args: any) {
+    closeOrderAndSave(_: any, args: any) {
       //Delete session from database
+      const arg = args.input as {
+        userId: string;
+        restaurantId: string;
+        order: IOrder;
+      };
+
+      Session.deleteOne({
+        "session.userId": arg.userId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      const order = new Order({ ...arg.order });
+      order.save();
+
       //Save Order in database
       pubsub.publish("ORDER_STATUS", {
         orderStatus: {
+          userId: args.userId,
           status: OrderStage.DELETE
         }
       });
+      return "success";
+    },
+    closeOrder(_: any, args: any) {
+      //Delete session from database
+      const arg = args.input as {
+        userId: string;
+        restaurantId: string;
+        order: IOrder;
+      };
+
+      Session.deleteOne({
+        "session.userId": arg.userId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      return "success";
+    },
+    async closeAllOrdersInTable(_: any, args: any) {
+      const arg = args.input as { restaurantId: string; tableId: number };
+      const deletedSessions = await Session.deleteMany({
+        "session.tableId": arg.tableId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      console.log(deletedSessions, "testing");
       return "success";
     }
   },
@@ -89,8 +147,9 @@ const resolvers = {
     orderStatus: {
       subscribe: withFilter(
         () => pubsub.asyncIterator("ORDER_STATUS"),
-        ({ orderStatus }, variables: { sessionId: string }) => {
-          return orderStatus.sessionId === variables.sessionId;
+        ({ orderStatus }, variables: { userId: string }) => {
+          // console.log(orderStatus, "subscrition status");
+          return orderStatus.userId === variables.userId;
         }
       )
     }
@@ -105,6 +164,7 @@ async function populateOrder(arg: OrderInput, order: IMenuItem[]) {
     if (!item) throw new Error("document not found");
     item.imageUrl = "test"; //TODO: Delete this
     item.tableId = arg.tableId;
+    //Todo?: item.name = arg.name:  Give the order the customer name
     order.push(item);
   }
 }

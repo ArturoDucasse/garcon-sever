@@ -8,7 +8,7 @@ const typeDefs = (0, apollo_server_express_1.gql)`
   }
 
   type Order {
-    sessionId: String
+    userId: String
     tableId: Int
     orderItems: [ID]
     restaurantId: String

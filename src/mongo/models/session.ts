@@ -1,16 +1,15 @@
 import { Schema, Types, Model, model } from "mongoose";
 
 export interface ISession {
-  _id: Schema.Types.ObjectId;
   session: {
     restaurantId: Types.ObjectId;
     tableId: number;
+    userId: string;
     order: [Types.ObjectId];
   };
 }
 
 const sessionSchema = new Schema<ISession>({
-  _id: Schema.Types.ObjectId,
   session: {
     restaurantId: {
       type: Schema.Types.ObjectId,
@@ -19,6 +18,10 @@ const sessionSchema = new Schema<ISession>({
     },
     tableId: {
       type: Number,
+      required: true
+    },
+    userId: {
+      type: String,
       required: true
     },
     order: [Schema.Types.ObjectId]

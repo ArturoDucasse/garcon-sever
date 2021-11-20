@@ -3,7 +3,7 @@ import { Schema, model, Model } from "mongoose";
 export interface IOrder {
   orderItems: any;
   totalAmount: number;
-  restaurantId: number;
+  restaurantId: string;
   tableId: number;
 }
 
@@ -19,7 +19,7 @@ const orderSchema = new Schema<IOrder>(
       required: true
     },
     restaurantId: {
-      type: Number,
+      type: String,
       required: true
     },
     tableId: {
