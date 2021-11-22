@@ -1,4 +1,4 @@
-import { Schema, model, Model } from "mongoose";
+import { Schema, model, Model, Types } from "mongoose";
 
 export interface IOrder {
   orderItems: any;
@@ -10,12 +10,8 @@ export interface IOrder {
 const orderSchema = new Schema<IOrder>(
   {
     orderItems: {
-      type: [Schema.Types.ObjectId],
+      type: [{ productId: Schema.Types.ObjectId, quantity: Number }],
       ref: "MenuItem",
-      required: true
-    },
-    totalAmount: {
-      type: Number,
       required: true
     },
     restaurantId: {

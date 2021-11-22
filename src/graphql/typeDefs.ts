@@ -1,16 +1,23 @@
 import { Types } from "mongoose";
 import { gql } from "apollo-server-express";
 
-export type OrderInput = {
+export type CreateOrderInput = {
   restaurantId: string; //TODO: Delete this field, value will be generated from the req.session
   tableId: number; //Todo: Delete
-  order: [Types.ObjectId];
+  order: [{ productId: Types.ObjectId; quantity: number }];
   userId: string; //Todo: Delete as well, will be generated from the req.session
 };
 
 export type UpdateOrderInput = {
   userId: String;
   order: [ItemMenuInput];
+};
+
+export type CloseOrderInput = {
+  userId: String;
+  restaurantId: String;
+  orderItems?: [{ productId: Types.ObjectId; quantity: number }];
+  tableId: number;
 };
 
 interface ItemMenuInput {
@@ -30,23 +37,20 @@ export enum OrderStage {
 }
 
 const typeDefs = gql`
-  input CreateOrderInput {
-    restaurantId: String
-    tableId: Int!
-    order: [String]
-  }
+  # Item menu model
 
   input ItemMenuInput {
-    _id: ID
+    _id: String!
     name: String
     description: String
     price: Float
     imageUrl: String
     tableId: Int
-    quantity: Int
+    quantity: Int!
   }
 
   type ItemMenu {
+    _id: String
     name: String
     description: String
     price: Float
@@ -55,17 +59,24 @@ const typeDefs = gql`
     quantity: Int
   }
 
-  type Order {
+  # Order model
+
+  type CreateOrder {
     restaurantId: String
     tableId: Int
     order: [ItemMenu]
     userId: String
   }
 
+  # User model
+
   type User {
+    userId: String
     order: [ItemMenu]
-    table: Int
+    tableId: Int
   }
+
+  # Query input
 
   input GetUsersInTableInput {
     tableId: Int
@@ -73,24 +84,50 @@ const typeDefs = gql`
   }
 
   type Query {
-    getUser(userId: ID): User
+    getUserDetails(userId: ID): User
     getUsersInTable(input: GetUsersInTableInput): [User]
+    getAllActiveUsers(restaurantId: String): [User]
   }
 
-  type Mutation {
-    createOrder(input: CreateOrderInput): String
-    orderComplete(userId: ID): String
-    updateOrder(input: UpdateOrderInput): String
-    closeOrderAndSave(userId: ID): String
-    closeOrder(userId: ID): String
-    closeAllOrdersInTable(restaurantId: String, tableId: Int): String
-  }
+  #Mutations input
 
   input UpdateOrderInput {
     userId: String
     order: [ItemMenuInput]
   }
 
+  input Temp { #Rename this
+    productId: String
+    quantity: Int
+  }
+
+  input CreateOrderInput {
+    restaurantId: String
+    tableId: Int!
+    order: [Temp]
+  }
+
+  input CloseOrderInput {
+    userId: String
+    restaurantId: String
+    orderItems: [OrderInput]
+    tableId: Int
+  }
+
+  input OrderInput {
+    productId: String
+    quantity: Int
+  }
+
+  type Mutation {
+    createOrder(input: CreateOrderInput): String
+    orderComplete(userId: ID): String
+    updateOrder(input: UpdateOrderInput): String
+    closeOrder(input: CloseOrderInput): String
+    closeOrderAndSave(input: CloseOrderInput): String
+  }
+
+  # Subscription result
   type OrderStatus {
     status: String
     update: OrderUpdate
@@ -102,7 +139,7 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    orderCreated(restaurantId: ID!): Order
+    orderCreated(restaurantId: ID!): CreateOrder
     orderStatus(userId: ID!): OrderStatus
   }
 `;

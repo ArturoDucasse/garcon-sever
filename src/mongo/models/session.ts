@@ -1,11 +1,12 @@
 import { Schema, Types, Model, model } from "mongoose";
+import { IMenuItem } from "../../mongo/models/menuItem";
 
 export interface ISession {
   session: {
     restaurantId: Types.ObjectId;
     tableId: number;
     userId: string;
-    order: [Types.ObjectId];
+    order: [{ productId: Types.ObjectId; quantity: number }] | IMenuItem[];
   };
 }
 
@@ -24,7 +25,7 @@ const sessionSchema = new Schema<ISession>({
       type: String,
       required: true
     },
-    order: [Schema.Types.ObjectId]
+    order: [{ productId: Schema.Types.ObjectId, quantity: Number }]
   }
 });
 

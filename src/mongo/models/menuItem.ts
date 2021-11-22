@@ -1,6 +1,8 @@
 import { Schema, Types, Model, model } from "mongoose";
 
+//Todo?: Add customer name to order
 export interface IMenuItem {
+  _id: Types.ObjectId;
   name: string;
   price: number;
   tableId: number;

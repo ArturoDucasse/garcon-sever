@@ -4,6 +4,6 @@ declare module "express-session" {
   export interface SessionData {
     restaurantId: Types.ObjectId;
     tableId: number;
-    order?: [Types.ObjectId];
+    order?: [{ productId: Types.ObjectId; quantity: number }];
   }
 }
