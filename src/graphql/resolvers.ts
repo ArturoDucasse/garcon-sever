@@ -3,7 +3,7 @@ import { PubSub, withFilter } from "graphql-subscriptions";
 import { Request } from "express";
 import { Types } from "mongoose";
 
-import { IMenuItem } from "../mongo/models/menuItem";
+import MenuItem, { IMenuItem } from "../mongo/models/menuItem";
 import Order from "../mongo/models/order";
 import {
   CreateOrderInput,
@@ -71,6 +71,11 @@ const resolvers = {
       }
 
       return filteredUsers;
+    },
+    async getMenuItem(_: any, args: any) {
+      const arg = args.input as { itemMenuId: Types.ObjectId };
+      const menuItem = MenuItem.findById(arg.itemMenuId);
+      return menuItem;
     }
   },
   Mutation: {
@@ -85,7 +90,7 @@ const resolvers = {
         await populateOrder(arg.order, order, arg.tableId);
 
         pubsub.publish("ORDER_CREATED", {
-          orderCreated: {
+          orderCreation: {
             ...arg,
             order,
             userId: "123", // userId: context.session.userId
@@ -102,7 +107,7 @@ const resolvers = {
       await populateOrder(arg.order, order, arg.tableId);
 
       pubsub.publish("ORDER_CREATED", {
-        orderCreated: {
+        orderCreation: {
           ...arg,
           order,
           userId: "123",
@@ -149,7 +154,7 @@ const resolvers = {
       });
       return "success";
     },
-    closeOrderAndSave(_: any, args: any) {
+    async closeOrderAndSave(_: any, args: any) {
       const arg = args.input as CloseOrderInput;
 
       Session.deleteOne({
@@ -158,7 +163,7 @@ const resolvers = {
       });
 
       const order = new Order({ ...arg });
-      order.save();
+      await order.save();
 
       pubsub.publish("ORDER_STATUS", {
         orderStatus: {
@@ -177,16 +182,71 @@ const resolvers = {
       });
 
       return "success";
+    },
+    async closeAllOrdersInTableAndSave(_: any, args: any) {
+      const arg = args.input as CloseOrderInput;
+
+      const users = await Session.find({
+        "session.tableId": arg.tableId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      const filteredUsers = users.map((user) => user.session);
+
+      for (const user of filteredUsers) {
+        const { cookie, ...rest } = user;
+        const order = new Order({ ...rest });
+        await order.save();
+
+        pubsub.publish("ORDER_STATUS", {
+          orderStatus: {
+            userId: user.userId,
+            status: OrderStage.DELETE
+          }
+        });
+      }
+
+      await Session.deleteMany({
+        "session.tableId": arg.tableId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      return "success";
+    },
+    async closeAllOrdersInTable(_: any, args: any) {
+      const arg = args.input as CloseOrderInput;
+
+      const users = await Session.find({
+        "session.tableId": arg.tableId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      const filteredUsers = users.map((user) => user.session);
+
+      for (const user of filteredUsers) {
+        pubsub.publish("ORDER_STATUS", {
+          orderStatus: {
+            userId: user.userId,
+            status: OrderStage.DELETE
+          }
+        });
+      }
+
+      await Session.deleteMany({
+        "session.tableId": arg.tableId,
+        "session.restaurantId": arg.restaurantId
+      });
+
+      return "success";
     }
   },
 
   Subscription: {
-    orderCreated: {
+    orderCreation: {
       subscribe: withFilter(
         () => pubsub.asyncIterator("ORDER_CREATED"),
-        ({ orderCreated }, variables) => {
-          console.log(orderCreated, variables);
-          return orderCreated.restaurantId === variables.restaurantId;
+        ({ orderCreation }, variables) => {
+          return orderCreation.restaurantId === variables.restaurantId;
         }
       )
     },
@@ -194,8 +254,6 @@ const resolvers = {
       subscribe: withFilter(
         () => pubsub.asyncIterator("ORDER_STATUS"),
         ({ orderStatus }, variables: { userId: string }) => {
-          console.log(orderStatus, "subscrition status");
-          console.log(variables, "variables");
           return orderStatus.userId === variables.userId;
         }
       )

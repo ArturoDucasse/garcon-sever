@@ -6,6 +6,7 @@ export interface ISession {
     restaurantId: Types.ObjectId;
     tableId: number;
     userId: string;
+    cookie: object;
     order: [{ productId: Types.ObjectId; quantity: number }] | IMenuItem[];
   };
 }
@@ -21,6 +22,7 @@ const sessionSchema = new Schema<ISession>({
       type: Number,
       required: true
     },
+    cookie: {},
     userId: {
       type: String,
       required: true

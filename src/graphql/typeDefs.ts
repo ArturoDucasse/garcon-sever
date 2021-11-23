@@ -5,12 +5,13 @@ export type CreateOrderInput = {
   restaurantId: string; //TODO: Delete this field, value will be generated from the req.session
   tableId: number; //Todo: Delete
   order: [{ productId: Types.ObjectId; quantity: number }];
+  note: string;
   userId: string; //Todo: Delete as well, will be generated from the req.session
 };
 
 export type UpdateOrderInput = {
   userId: String;
-  order: [ItemMenuInput];
+  order: [MenuItemInput];
 };
 
 export type CloseOrderInput = {
@@ -20,7 +21,7 @@ export type CloseOrderInput = {
   tableId: number;
 };
 
-interface ItemMenuInput {
+interface MenuItemInput {
   _id: Types.ObjectId;
   name: string;
   description: string;
@@ -39,7 +40,7 @@ export enum OrderStage {
 const typeDefs = gql`
   # Item menu model
 
-  input ItemMenuInput {
+  input MenuItemInput {
     _id: String!
     name: String
     description: String
@@ -49,7 +50,7 @@ const typeDefs = gql`
     quantity: Int!
   }
 
-  type ItemMenu {
+  type MenuItem {
     _id: String
     name: String
     description: String
@@ -64,15 +65,16 @@ const typeDefs = gql`
   type CreateOrder {
     restaurantId: String
     tableId: Int
-    order: [ItemMenu]
+    order: [MenuItem]
     userId: String
+    note: String
   }
 
   # User model
 
   type User {
     userId: String
-    order: [ItemMenu]
+    order: [MenuItem]
     tableId: Int
   }
 
@@ -85,6 +87,7 @@ const typeDefs = gql`
 
   type Query {
     getUserDetails(userId: ID): User
+    getMenuItem(menuItemId: ID): MenuItem
     getUsersInTable(input: GetUsersInTableInput): [User]
     getAllActiveUsers(restaurantId: String): [User]
   }
@@ -93,7 +96,7 @@ const typeDefs = gql`
 
   input UpdateOrderInput {
     userId: String
-    order: [ItemMenuInput]
+    order: [MenuItemInput]
   }
 
   input Temp { #Rename this
@@ -105,6 +108,7 @@ const typeDefs = gql`
     restaurantId: String
     tableId: Int!
     order: [Temp]
+    note: String
   }
 
   input CloseOrderInput {
@@ -125,6 +129,8 @@ const typeDefs = gql`
     updateOrder(input: UpdateOrderInput): String
     closeOrder(input: CloseOrderInput): String
     closeOrderAndSave(input: CloseOrderInput): String
+    closeAllOrdersInTableAndSave(input: CloseOrderInput): String
+    closeAllOrdersInTable(input: CloseOrderInput): String
   }
 
   # Subscription result
@@ -135,11 +141,11 @@ const typeDefs = gql`
   }
 
   type OrderUpdate {
-    order: [ItemMenu]
+    order: [MenuItem]
   }
 
   type Subscription {
-    orderCreated(restaurantId: ID!): CreateOrder
+    orderCreation(restaurantId: ID!): CreateOrder
     orderStatus(userId: ID!): OrderStatus
   }
 `;
