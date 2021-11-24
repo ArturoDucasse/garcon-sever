@@ -11,7 +11,7 @@ import {
   UpdateOrderInput,
   CloseOrderInput
 } from "./typeDefs";
-import Session from "../mongo/models/session";
+import Session, { ISession } from "../mongo/models/session";
 import { populateOrder } from "../utils/populateOrder";
 
 const pubsub = new PubSub();
@@ -81,12 +81,16 @@ const resolvers = {
   Mutation: {
     async createOrder(_: any, args: any, context: Request) {
       const arg = args.input as CreateOrderInput;
-      const order: IMenuItem[] = [];
-      let testing: any = [];
-      if (!arg.order) throw new Error("Missing information from current order");
-      if (!context.session) throw new Error("Missing user credentials ");
 
-      if (!testing.length) {
+      const user = context as unknown as ISession;
+
+      if (!user) throw new Error("User not authenticated");
+
+      const order: IMenuItem[] = [];
+      if (!arg.order) throw new Error("Missing information from current order");
+      // if (!context.session) throw new Error("Missing user credentials ");
+
+      if (!user.session.order.length) {
         await populateOrder(arg.order, order, arg.tableId);
 
         pubsub.publish("ORDER_CREATED", {
@@ -94,16 +98,16 @@ const resolvers = {
             ...arg,
             order,
             userId: "123", // userId: context.session.userId
-            restaurantId: "321"
+            restaurantId: "615b5d11899fe6bbba8822d4"
           }
         });
-        testing = arg.order;
+        user.session.order = arg.order;
         return "success";
       }
 
-      for (const item of arg.order) {
-        testing.push(item);
-      }
+      // for (const item of arg.order) {
+      //   user.session.order.push(item);
+      // }
       await populateOrder(arg.order, order, arg.tableId);
 
       pubsub.publish("ORDER_CREATED", {
@@ -119,9 +123,9 @@ const resolvers = {
       });
       return "success";
     },
-    orderComplete(_: any) {
+    orderComplete(_: any, args: { userId: string }) {
       pubsub.publish("ORDER_STATUS", {
-        orderStatus: { status: OrderStage.COMPLETE, userId: "123" }
+        orderStatus: { status: OrderStage.COMPLETE, userId: args.userId }
       });
       return "success";
     },
@@ -246,6 +250,8 @@ const resolvers = {
       subscribe: withFilter(
         () => pubsub.asyncIterator("ORDER_CREATED"),
         ({ orderCreation }, variables) => {
+          // console.log(orderCreation, "orderCreation");
+          // console.log(variables, "variables");
           return orderCreation.restaurantId === variables.restaurantId;
         }
       )

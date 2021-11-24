@@ -5,7 +5,6 @@ import MongoStore from "connect-mongo";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { execute, subscribe } from "graphql";
 
-import Session from "./mongo/models/session";
 import apolloServer from "./services/apollo/startApolloServer";
 import admin from "./services/adminBro/startAdminBro";
 import { getRestaurant } from "./controllers/restaurant";

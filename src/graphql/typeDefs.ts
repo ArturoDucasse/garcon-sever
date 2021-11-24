@@ -109,6 +109,7 @@ const typeDefs = gql`
     tableId: Int!
     order: [Temp]
     note: String
+    userId: String
   }
 
   input CloseOrderInput {
