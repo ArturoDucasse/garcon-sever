@@ -74,7 +74,7 @@ const typeDefs = gql`
 
   type User {
     userId: String
-    order: [MenuItem]
+    populatedOrder: [MenuItem]
     tableId: Int
   }
 
@@ -82,7 +82,7 @@ const typeDefs = gql`
 
   input GetUsersInTableInput {
     tableId: Int
-    restaurantId: Int
+    restaurantId: String
   }
 
   type Query {

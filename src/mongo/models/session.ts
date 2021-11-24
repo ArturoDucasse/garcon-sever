@@ -4,11 +4,12 @@ import { IMenuItem } from "../../mongo/models/menuItem";
 export interface ISession {
   _id: string;
   session: {
-    restaurantId: Types.ObjectId;
+    restaurantId: string;
     tableId: number;
     userId: string;
     cookie: object;
-    order: [{ productId: Types.ObjectId; quantity: number }] | IMenuItem[];
+    order: [{ productId: Types.ObjectId; quantity: number }];
+    populatedOrder: IMenuItem[];
   };
 }
 
@@ -16,7 +17,7 @@ const sessionSchema = new Schema<ISession>({
   _id: String,
   session: {
     restaurantId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Restaurant",
       required: true
     },

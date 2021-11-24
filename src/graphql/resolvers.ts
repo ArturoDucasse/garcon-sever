@@ -19,55 +19,48 @@ const pubsub = new PubSub();
 const resolvers = {
   Query: {
     async getUserDetails(_: any, args: any) {
-      const arg = args.input as { userId: string };
+      const arg = args as { userId: string };
 
       const user = await Session.findOne({ "session.userId": arg.userId });
       if (!user) throw new Error("User not found");
-      const userOrder: IMenuItem[] = [];
-      populateOrder(
+      const order = await populateOrder(
         user.session.order as [{ productId: Types.ObjectId; quantity: number }],
-        userOrder,
         user.session.tableId
       );
 
-      return { order: userOrder, table: user.session.tableId };
+      return { order, tableId: user.session.tableId, userId: arg.userId };
     },
     async getUsersInTable(_: any, args: any) {
       const arg = args.input as { tableId: number; restaurantId: string };
       const users = await Session.find({
-        "session.tableId": arg.tableId,
         "session.restaurantId": arg.restaurantId
       });
 
       const filteredUsers = users.map((user) => user.session);
 
       for (const user of filteredUsers) {
-        const populatedOrder: IMenuItem[] = [];
-        populateOrder(
-          user.order as [{ productId: Types.ObjectId; quantity: number }],
-          populatedOrder
+        const order = await populateOrder(
+          user.order as [{ productId: Types.ObjectId; quantity: number }]
         );
-        user.order = populatedOrder;
+        user.populatedOrder = order;
       }
 
       return filteredUsers;
     },
     async getAllActiveUsers(_: any, args: any) {
-      const arg = args.input as { restaurantId: string };
-
       const users = await Session.find({
-        "session.restaurantId": arg.restaurantId
+        "session.restaurantId": args.restaurantId
       });
 
+      console.log(users, "users");
       const filteredUsers = users.map((user) => user.session);
 
       for (const user of filteredUsers) {
         const populatedOrder: IMenuItem[] = [];
         populateOrder(
-          user.order as [{ productId: Types.ObjectId; quantity: number }],
-          populatedOrder
+          user.order as [{ productId: Types.ObjectId; quantity: number }]
         );
-        user.order = populatedOrder;
+        user.populatedOrder = populatedOrder;
       }
 
       return filteredUsers;
@@ -91,7 +84,7 @@ const resolvers = {
       // if (!context.session) throw new Error("Missing user credentials ");
 
       if (!user.session.order.length) {
-        await populateOrder(arg.order, order, arg.tableId);
+        await populateOrder(arg.order, arg.tableId);
 
         pubsub.publish("ORDER_CREATED", {
           orderCreation: {
@@ -108,7 +101,8 @@ const resolvers = {
       // for (const item of arg.order) {
       //   user.session.order.push(item);
       // }
-      await populateOrder(arg.order, order, arg.tableId);
+
+      await populateOrder(arg.order, arg.tableId);
 
       pubsub.publish("ORDER_CREATED", {
         orderCreation: {
@@ -177,13 +171,16 @@ const resolvers = {
       });
       return "success";
     },
-    closeOrder(_: any, args: any) {
+    async closeOrder(_: any, args: any) {
       const arg = args.input as CloseOrderInput;
 
-      Session.deleteOne({
-        "session.userId": arg.userId,
+      console.log(arg, "arguments ");
+
+      const test = await Session.findOne({
         "session.restaurantId": arg.restaurantId
       });
+
+      console.log(test, "testing");
 
       return "success";
     },

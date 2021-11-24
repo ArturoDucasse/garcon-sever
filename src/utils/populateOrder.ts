@@ -3,9 +3,9 @@ import { Types } from "mongoose";
 
 export async function populateOrder(
   orders: [{ productId: Types.ObjectId; quantity: number }],
-  populatedOrder: IMenuItem[],
   tableId?: number
-) {
+): Promise<IMenuItem[]> {
+  const temp: IMenuItem[] = [];
   for (const order of orders) {
     const item: IMenuItem | null = await MenuItem.findById(order.productId);
     if (!item) throw new Error("document not found");
@@ -14,6 +14,7 @@ export async function populateOrder(
     item.quantity = order.quantity;
     if (tableId) item.tableId = tableId;
     //Todo?: item.name = arg.name:  Give the order the customer name
-    populatedOrder.push(item);
+    temp.push(item);
   }
+  return temp;
 }
