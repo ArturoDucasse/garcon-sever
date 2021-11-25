@@ -63,9 +63,6 @@ const typeDefs = gql`
     quantity: Int!
   }
 
-  """
-  MenuItem
-  """
   type MenuItem {
     _id: String
     name: String
@@ -103,19 +100,19 @@ const typeDefs = gql`
 
   type Query {
     """
-    This query returns the user current order
+    This query returns the user order details
     """
     getUserDetails(userId: ID): User
     """
-    This query
+    This query returns the menu item details
     """
     getMenuItem(menuItemId: ID): MenuItem
     """
-    This query
+    This query returns all users details in one particular table
     """
     getUsersInTable(input: GetUsersInTableInput): [User]
     """
-    This query
+    This query returns all active users(sessions) in the restaurant
     """
     getAllActiveUsers(restaurantId: String): [User]
   }
@@ -127,7 +124,7 @@ const typeDefs = gql`
     order: [MenuItemInput]
   }
 
-  input Temp { #Rename this
+  input OrderInput {
     productId: String
     quantity: Int
   }
@@ -135,7 +132,7 @@ const typeDefs = gql`
   input CreateOrderInput {
     restaurantId: String
     tableId: Int!
-    order: [Temp]
+    order: [OrderInput]
     note: String
     userId: String
   }
@@ -160,38 +157,33 @@ const typeDefs = gql`
     restaurantId: String
   }
 
-  input OrderInput {
-    productId: String
-    quantity: Int
-  }
-
   type Mutation {
     """
-    This mutation
+    This mutation creates an order, and sends a message to the <orderStatus> subscription.
     """
     createOrder(input: CreateOrderInput): String
     """
-    This mutation
+    This mutation sends a message to the <orderStatus> notifying that the order is complete.
     """
     orderComplete(userId: ID): String
     """
-    This mutation
+    This mutation updates an existing order.
     """
     updateOrder(input: UpdateOrderInput): String
     """
-    This mutation
+    This mutation closes/deletes an user(session) from the database, without saving hes/her order(s).
     """
     closeSingleOrder(input: CloseSingleOrderInput): String
     """
-    This mutation
+    This mutation closes/deletes an user(session) from the database, as well, saves the order to the database.
     """
     closeSingleOrderAndSave(input: CloseSingleOrderAndSaveInput): String
     """
-    This mutation
+    This mutation closes all users in a particular table from the database.
     """
     closeTableOrders(input: CloseTableOrdersInput): String
     """
-    This mutation
+    This mutation closes all users in a particular table from the database, and saves their orders to the database.
     """
     closeTableOrdersAndSave(input: CloseTableOrdersAndSaveInput): String
   }
@@ -208,7 +200,25 @@ const typeDefs = gql`
   }
 
   type Subscription {
+    """
+    This subscription listens to the creation of orders.
+
+    Note*: This is specially made for the kitchen.
+    """
     orderCreation(restaurantId: ID!): CreateOrder
+    """
+    This subscription listens to the status of an order.
+
+    Status: Complete - Update - Delete
+
+    Complete: Order is complete
+
+    Update: Order was just updated from the staff, *comes with a payload.
+
+    Delete: Order/session was deleted.
+
+    Note: This is made for the users/garcons.
+    """
     orderStatus(userId: ID!): OrderStatus
   }
 `;

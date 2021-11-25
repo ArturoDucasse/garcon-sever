@@ -1,9 +1,8 @@
-import { IOrder } from "./../mongo/models/order";
 import { PubSub, withFilter } from "graphql-subscriptions";
 import { Request } from "express";
 import { Types } from "mongoose";
 
-import MenuItem, { IMenuItem } from "../mongo/models/menuItem";
+import MenuItem from "../mongo/models/menuItem";
 import Order from "../mongo/models/order";
 import {
   CreateOrderInput,
@@ -14,7 +13,7 @@ import {
   CloseTableOrdersInput,
   CloseTableOrdersAndSaveInput
 } from "./typeDefs";
-import Session, { ISession } from "../mongo/models/session";
+import Session from "../mongo/models/session";
 import { populateOrder } from "../utils/populateOrder";
 
 const pubsub = new PubSub();

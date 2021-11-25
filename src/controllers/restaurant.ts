@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { Types } from "mongoose";
 import ShortUniqueId from "short-unique-id";
 
 import Restaurant from "../mongo/models/restaurant";
@@ -15,22 +14,26 @@ export const getRestaurant = async (
     const params = req.params;
     const lengthOfUniqueId = 12;
     const uid = new ShortUniqueId({ length: lengthOfUniqueId });
+    const userId = uid() as string;
+    const { restaurantId, tableId } = params;
 
     if (!req.session) throw new Error("Session not created");
 
-    req.session.restaurantId = params.restaurantId as unknown as Types.ObjectId;
-    req.session.tableId = +params.tableId;
-    req.session.userId = uid() as string;
+    req.session.restaurantId = restaurantId;
+    req.session.tableId = +tableId;
+    req.session.userId = userId;
 
-    const restaurant = await Restaurant.findById(params.restaurantId).populate({
-      path: "menus",
-      model: Menu,
-      populate: { path: "menuItems", model: MenuItems }
-    });
+    const restaurant = await Restaurant.findById(params.restaurantId)
+      .populate({
+        path: "menus",
+        model: Menu,
+        populate: { path: "menuItems", model: MenuItems }
+      })
+      .lean();
 
     if (!restaurant) throw new Error("Restaurant not found");
 
-    res.json(restaurant).status(200);
+    res.json({ ...restaurant, userId, tableId }).status(200);
   } catch (error: any) {
     // next(error); Create error handler
     res.status(404).json({ success: false, error: error.message });
