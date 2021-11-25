@@ -1,7 +1,7 @@
 import { Schema, model, Model, Types } from "mongoose";
 
 export interface IOrder {
-  orderItems: any;
+  order: any;
   totalAmount: number;
   restaurantId: string;
   tableId: number;
@@ -9,7 +9,7 @@ export interface IOrder {
 
 const orderSchema = new Schema<IOrder>(
   {
-    orderItems: {
+    order: {
       type: [{ productId: Schema.Types.ObjectId, quantity: Number }],
       ref: "MenuItem",
       required: true
@@ -19,6 +19,10 @@ const orderSchema = new Schema<IOrder>(
       required: true
     },
     tableId: {
+      type: Number,
+      required: true
+    },
+    totalAmount: {
       type: Number,
       required: true
     }

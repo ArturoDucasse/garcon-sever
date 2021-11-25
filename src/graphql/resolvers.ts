@@ -9,7 +9,10 @@ import {
   CreateOrderInput,
   OrderStage,
   UpdateOrderInput,
-  CloseOrderInput
+  CloseSingleOrderInput,
+  CloseSingleOrderAndSaveInput,
+  CloseTableOrdersInput,
+  CloseTableOrdersAndSaveInput
 } from "./typeDefs";
 import Session, { ISession } from "../mongo/models/session";
 import { populateOrder } from "../utils/populateOrder";
@@ -52,22 +55,20 @@ const resolvers = {
         "session.restaurantId": args.restaurantId
       });
 
-      console.log(users, "users");
       const filteredUsers = users.map((user) => user.session);
 
       for (const user of filteredUsers) {
-        const populatedOrder: IMenuItem[] = [];
-        populateOrder(
+        const order = await populateOrder(
           user.order as [{ productId: Types.ObjectId; quantity: number }]
         );
-        user.populatedOrder = populatedOrder;
+        user.populatedOrder = order;
       }
 
       return filteredUsers;
     },
     async getMenuItem(_: any, args: any) {
-      const arg = args.input as { itemMenuId: Types.ObjectId };
-      const menuItem = MenuItem.findById(arg.itemMenuId);
+      const arg = args as { menuItemId: Types.ObjectId };
+      const menuItem = MenuItem.findById(arg.menuItemId);
       return menuItem;
     }
   },
@@ -75,34 +76,41 @@ const resolvers = {
     async createOrder(_: any, args: any, context: Request) {
       const arg = args.input as CreateOrderInput;
 
-      const user = context as unknown as ISession;
+      // const user = context as unknown as ISession;
+      //Todo: Test the context (a.k.a = req.session) in the creation of the order
+      const user = await Session.findOne({
+        "session.userId": arg.userId,
+        "session.restaurantId": arg.restaurantId
+      });
 
-      if (!user) throw new Error("User not authenticated");
+      if (!user) throw new Error("User not found");
 
-      const order: IMenuItem[] = [];
       if (!arg.order) throw new Error("Missing information from current order");
       // if (!context.session) throw new Error("Missing user credentials ");
 
       if (!user.session.order.length) {
-        await populateOrder(arg.order, arg.tableId);
+        const order = await populateOrder(arg.order, arg.tableId);
 
         pubsub.publish("ORDER_CREATED", {
           orderCreation: {
             ...arg,
             order,
-            userId: "123", // userId: context.session.userId
-            restaurantId: "615b5d11899fe6bbba8822d4"
+            userId: arg.userId, // userId: context.session.userId
+            restaurantId: arg.restaurantId
           }
         });
+        user.session.populatedOrder = order;
         user.session.order = arg.order;
+        await user.save();
         return "success";
       }
 
+      //TODO: ask thulk what the hell is wrong
       // for (const item of arg.order) {
       //   user.session.order.push(item);
       // }
 
-      await populateOrder(arg.order, arg.tableId);
+      const order = await populateOrder(arg.order, arg.tableId);
 
       pubsub.publish("ORDER_CREATED", {
         orderCreation: {
@@ -127,17 +135,16 @@ const resolvers = {
       const arg = args.input as UpdateOrderInput;
       const user = await Session.findOne({ "session.userId": arg.userId });
       if (!user) throw new Error("User not found");
-      // if (!user.session.order.length) throw new Error("Order empty");
+      if (!user.session.order.length) throw new Error("Order empty");
 
-      const newOrderIds = arg.order.map((item) => {
+      const updateOrder = arg.order.map((item) => {
         return {
           productId: item._id as Types.ObjectId,
           quantity: item.quantity
         };
       });
-      console.log(newOrderIds, "est");
 
-      user.session.order = newOrderIds as [
+      user.session.order = updateOrder as [
         { productId: Types.ObjectId; quantity: number }
       ];
       user.save();
@@ -152,40 +159,63 @@ const resolvers = {
       });
       return "success";
     },
-    async closeOrderAndSave(_: any, args: any) {
-      const arg = args.input as CloseOrderInput;
+    async closeSingleOrder(_: any, args: any) {
+      const arg = args.input as CloseSingleOrderInput;
 
-      Session.deleteOne({
+      await Session.deleteOne({
+        "session.restaurantId": arg.restaurantId,
+        "session.userId": arg.userId
+      });
+
+      pubsub.publish("ORDER_STATUS", {
+        orderStatus: {
+          userId: arg.userId,
+          status: OrderStage.DELETE
+        }
+      });
+
+      return "success";
+    },
+    async closeSingleOrderAndSave(_: any, args: any) {
+      const arg = args.input as CloseSingleOrderAndSaveInput;
+
+      const user = await Session.findOne({
         "session.userId": arg.userId,
         "session.restaurantId": arg.restaurantId
       });
 
-      const order = new Order({ ...arg });
-      await order.save();
+      if (!user) throw new Error("User not found");
+      //Todo?: Throw an error if the quantity isn't in the order
+
+      const { order, restaurantId, tableId } = user.session;
+
+      const populatedOrder = await populateOrder(order);
+      const orderPrices = populatedOrder.map(
+        (item) => item.price * item.quantity!
+      );
+
+      const totalAmount = orderPrices.reduce(
+        (acc, current) => (acc += current)
+      );
+
+      const newOrder = new Order({ order, restaurantId, tableId, totalAmount });
+      await newOrder.save();
+
+      await Session.deleteOne({
+        "session.userId": arg.userId,
+        "session.restaurantId": arg.restaurantId
+      });
 
       pubsub.publish("ORDER_STATUS", {
         orderStatus: {
-          userId: args.userId,
+          userId: arg.userId,
           status: OrderStage.DELETE
         }
       });
       return "success";
     },
-    async closeOrder(_: any, args: any) {
-      const arg = args.input as CloseOrderInput;
-
-      console.log(arg, "arguments ");
-
-      const test = await Session.findOne({
-        "session.restaurantId": arg.restaurantId
-      });
-
-      console.log(test, "testing");
-
-      return "success";
-    },
-    async closeAllOrdersInTableAndSave(_: any, args: any) {
-      const arg = args.input as CloseOrderInput;
+    async closeTableOrders(_: any, args: any) {
+      const arg = args.input as CloseTableOrdersInput;
 
       const users = await Session.find({
         "session.tableId": arg.tableId,
@@ -195,10 +225,6 @@ const resolvers = {
       const filteredUsers = users.map((user) => user.session);
 
       for (const user of filteredUsers) {
-        const { cookie, ...rest } = user;
-        const order = new Order({ ...rest });
-        await order.save();
-
         pubsub.publish("ORDER_STATUS", {
           orderStatus: {
             userId: user.userId,
@@ -214,8 +240,8 @@ const resolvers = {
 
       return "success";
     },
-    async closeAllOrdersInTable(_: any, args: any) {
-      const arg = args.input as CloseOrderInput;
+    async closeTableOrdersAndSave(_: any, args: any) {
+      const arg = args.input as CloseTableOrdersAndSaveInput;
 
       const users = await Session.find({
         "session.tableId": arg.tableId,
@@ -225,6 +251,25 @@ const resolvers = {
       const filteredUsers = users.map((user) => user.session);
 
       for (const user of filteredUsers) {
+        const { order, restaurantId, tableId } = user;
+
+        const populatedOrder = await populateOrder(order);
+        const orderPrices = populatedOrder.map(
+          (item) => item.price * item.quantity!
+        );
+
+        const totalAmount = orderPrices.reduce(
+          (acc, current) => (acc += current)
+        );
+
+        const newOrder = new Order({
+          order,
+          restaurantId,
+          tableId,
+          totalAmount
+        });
+        await newOrder.save();
+
         pubsub.publish("ORDER_STATUS", {
           orderStatus: {
             userId: user.userId,
@@ -257,6 +302,8 @@ const resolvers = {
       subscribe: withFilter(
         () => pubsub.asyncIterator("ORDER_STATUS"),
         ({ orderStatus }, variables: { userId: string }) => {
+          // console.log(orderStatus, "status");
+          // console.log(variables, "variables");
           return orderStatus.userId === variables.userId;
         }
       )

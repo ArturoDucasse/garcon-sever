@@ -14,11 +14,24 @@ export type UpdateOrderInput = {
   order: [MenuItemInput];
 };
 
-export type CloseOrderInput = {
+export type CloseSingleOrderInput = {
   userId: String;
   restaurantId: String;
-  orderItems?: [{ productId: Types.ObjectId; quantity: number }];
+};
+
+export type CloseSingleOrderAndSaveInput = {
+  userId: string;
+  restaurantId: string;
+};
+
+export type CloseTableOrdersInput = {
   tableId: number;
+  restaurantId: string;
+};
+
+export type CloseTableOrdersAndSaveInput = {
+  tableId: number;
+  restaurantId: string;
 };
 
 interface MenuItemInput {
@@ -50,6 +63,9 @@ const typeDefs = gql`
     quantity: Int!
   }
 
+  """
+  MenuItem
+  """
   type MenuItem {
     _id: String
     name: String
@@ -86,9 +102,21 @@ const typeDefs = gql`
   }
 
   type Query {
+    """
+    This query returns the user current order
+    """
     getUserDetails(userId: ID): User
+    """
+    This query
+    """
     getMenuItem(menuItemId: ID): MenuItem
+    """
+    This query
+    """
     getUsersInTable(input: GetUsersInTableInput): [User]
+    """
+    This query
+    """
     getAllActiveUsers(restaurantId: String): [User]
   }
 
@@ -112,11 +140,24 @@ const typeDefs = gql`
     userId: String
   }
 
-  input CloseOrderInput {
+  input CloseSingleOrderInput {
     userId: String
     restaurantId: String
-    orderItems: [OrderInput]
+  }
+
+  input CloseSingleOrderAndSaveInput {
+    userId: String
+    restaurantId: String
+  }
+
+  input CloseTableOrdersAndSaveInput {
     tableId: Int
+    restaurantId: String
+  }
+
+  input CloseTableOrdersInput {
+    tableId: Int
+    restaurantId: String
   }
 
   input OrderInput {
@@ -125,13 +166,34 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    """
+    This mutation
+    """
     createOrder(input: CreateOrderInput): String
+    """
+    This mutation
+    """
     orderComplete(userId: ID): String
+    """
+    This mutation
+    """
     updateOrder(input: UpdateOrderInput): String
-    closeOrder(input: CloseOrderInput): String
-    closeOrderAndSave(input: CloseOrderInput): String
-    closeAllOrdersInTableAndSave(input: CloseOrderInput): String
-    closeAllOrdersInTable(input: CloseOrderInput): String
+    """
+    This mutation
+    """
+    closeSingleOrder(input: CloseSingleOrderInput): String
+    """
+    This mutation
+    """
+    closeSingleOrderAndSave(input: CloseSingleOrderAndSaveInput): String
+    """
+    This mutation
+    """
+    closeTableOrders(input: CloseTableOrdersInput): String
+    """
+    This mutation
+    """
+    closeTableOrdersAndSave(input: CloseTableOrdersAndSaveInput): String
   }
 
   # Subscription result
